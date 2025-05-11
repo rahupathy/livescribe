@@ -1,78 +1,109 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import MeetingSetup from '@/components/live-scribe/meeting-setup';
-import ScribeDashboard from '@/components/live-scribe/scribe-dashboard';
-import type { MeetingContext } from '@/components/live-scribe/types';
-import LiveScribeLogo from '@/components/icons/live-scribe-logo';
-import { useAuth } from '@/contexts/auth-context';
+import type React from 'react';
+import LandingHeader from '@/components/landing/landing-header';
+import HeroSection from '@/components/landing/hero-section';
+import FeatureCard from '@/components/landing/feature-card';
+import LandingFooter from '@/components/landing/landing-footer';
+import { ShieldCheck, Zap, ListChecks, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/firebase/firebase';
-import { signOut } from 'firebase/auth';
-import { LogOut } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
-export default function Home() {
-  const [meetingContext, setMeetingContext] = useState<MeetingContext | null>(null);
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-  const handleContextSet = (context: MeetingContext) => {
-    setMeetingContext(context);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
-      router.push('/login');
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast({ title: 'Logout Failed', description: 'Could not log out. Please try again.', variant: 'destructive' });
-    }
-  };
-  
-  const [currentYear, setCurrentYear] = useState<number | null>(null);
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-  }, []);
-
-
-  if (loading || !user) {
-    // AuthProvider shows its own loader, or user is being redirected.
-    // You can optionally show a page-specific loader here if preferred.
-    return null; 
-  }
-
+const LandingPage: React.FC = () => {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background to-secondary/30">
-      <div className="container mx-auto px-0">
-        <div className="absolute top-4 right-4">
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" /> Logout
-          </Button>
-        </div>
-        {!meetingContext ? (
-          <MeetingSetup onContextSet={handleContextSet} />
-        ) : (
-          <ScribeDashboard initialContext={meetingContext} />
-        )}
-      </div>
-      <footer className="py-8 text-center text-muted-foreground">
-        <div className="flex items-center justify-center space-x-2">
-          <LiveScribeLogo className="h-5 w-5" /> 
-          {currentYear !== null ? <span>Live Scribe &copy; {currentYear}</span> : <span>Live Scribe</span>}
-        </div>
-      </footer>
-    </main>
+    <div className="flex flex-col min-h-screen bg-background">
+      <LandingHeader />
+      <main className="flex-grow">
+        <HeroSection />
+
+        <section id="features" className="py-16 lg:py-24 bg-secondary/30">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-center mb-12 text-foreground">
+              Discover the Power of Live Scribe
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <FeatureCard
+                icon={<Zap className="h-10 w-10 text-primary" />}
+                title="Real-Time Transcription & Summaries"
+                description="Capture every word with high-accuracy live transcription. Get instant, concise summaries of key discussion points and decisions, so you never miss a beat."
+                imageSrc="https://picsum.photos/seed/transcript/600/400"
+                imageAlt="Real-time transcription interface"
+                dataAiHint="transcript summary"
+              />
+              <FeatureCard
+                icon={<ListChecks className="h-10 w-10 text-primary" />}
+                title="Intelligent Action Items"
+                description="Live Scribe automatically identifies actionable tasks from your conversations. Assign owners and track progress effortlessly, turning discussions into deliverables."
+                imageSrc="https://picsum.photos/seed/actionitems/600/400"
+                imageAlt="Action items list"
+                dataAiHint="task list"
+              />
+              <FeatureCard
+                icon={<Users className="h-10 w-10 text-primary" />}
+                title="Smart Follow-Up Suggestions"
+                description="Receive AI-powered suggestions for follow-up meetings, research topics, or communications, ensuring comprehensive post-meeting engagement."
+                imageSrc="https://picsum.photos/seed/suggestions/600/400"
+                imageAlt="Follow-up suggestions"
+                dataAiHint="collaboration communication"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section id="security" className="py-16 lg:py-24">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <ShieldCheck className="h-16 w-16 text-accent mx-auto mb-6" />
+              <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-foreground">
+                Your Data, Your Control: Uncompromising Security
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                We prioritize your privacy. Your LLM API keys are never stored on our servers; they remain securely in your browser's memory for the duration of your session. All meeting data processed using your keys is handled according to the terms of your chosen LLM provider. Live Scribe acts as a secure conduit, ensuring your sensitive information remains confidential and under your control.
+              </p>
+              <div className="flex justify-center">
+                <img 
+                  src="https://picsum.photos/seed/securitylock/600/350" 
+                  alt="Data security visual" 
+                  className="rounded-lg shadow-xl"
+                  data-ai-hint="data security" 
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="purpose" className="py-16 lg:py-24 bg-primary/10">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-foreground">
+                  Focus on What Matters Most
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Live Scribe frees you from the burden of manual note-taking, allowing you to fully engage in discussions, foster better collaboration, and drive productive outcomes. Spend less time documenting and more time innovating, connecting, and leading.
+                </p>
+                <Link href="/login" passHref>
+                  <Button size="lg" className="text-lg py-7 px-10">
+                    Try Live Scribe Now
+                  </Button>
+                </Link>
+              </div>
+              <div>
+                <img 
+                  src="https://picsum.photos/seed/teamfocus/600/450" 
+                  alt="Team focusing in a meeting" 
+                  className="rounded-lg shadow-xl"
+                  data-ai-hint="team meeting"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <LandingFooter />
+    </div>
   );
-}
+};
+
+export default LandingPage;

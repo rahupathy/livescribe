@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/');
+      router.push('/app'); // Redirect to /app after login
     }
   }, [user, loading, router]);
 

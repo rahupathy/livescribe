@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn, Mail } from 'lucide-react';
 import LiveScribeLogo from '@/components/icons/live-scribe-logo';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -43,7 +44,7 @@ const LoginForm: React.FC = () => {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast({ title: 'Login Successful', description: "You're now logged in." });
-      router.push('/');
+      router.push('/app'); // Redirect to /app
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -61,7 +62,7 @@ const LoginForm: React.FC = () => {
     try {
       await signInWithPopup(auth, googleAuthProvider);
       toast({ title: 'Login Successful', description: "You're now logged in with Google." });
-      router.push('/');
+      router.push('/app'); // Redirect to /app
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
       toast({
@@ -78,7 +79,9 @@ const LoginForm: React.FC = () => {
     <Card className="w-full max-w-md shadow-2xl">
       <CardHeader className="text-center">
          <div className="flex justify-center items-center mb-4">
+           <Link href="/" aria-label="Back to landing page">
             <LiveScribeLogo className="h-12 w-12 text-primary" />
+           </Link>
           </div>
         <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
         <CardDescription>Sign in to continue to Live Scribe</CardDescription>
