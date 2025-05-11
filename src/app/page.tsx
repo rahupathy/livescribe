@@ -17,7 +17,7 @@ const LandingPage: React.FC = () => {
       <main className="flex-grow">
         <HeroSection />
 
-        <section id="features" className="py-16 lg:py-24 bg-secondary/30">
+        <section id="features" className="py-16 lg:py-24 bg-secondary/30 animate-in fade-in slide-in-from-bottom-5 duration-700 ease-out">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl lg:text-4xl font-bold text-center mb-12 text-foreground">
               Discover the Power of Live Scribe
@@ -51,7 +51,7 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        <section id="security" className="py-16 lg:py-24">
+        <section id="security" className="py-16 lg:py-24 animate-in fade-in slide-in-from-bottom-5 duration-900 ease-out">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <ShieldCheck className="h-16 w-16 text-accent mx-auto mb-6" />
@@ -65,7 +65,7 @@ const LandingPage: React.FC = () => {
                 <img 
                   src="https://picsum.photos/seed/securitylock/600/350" 
                   alt="Data security visual" 
-                  className="rounded-lg shadow-xl"
+                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out"
                   data-ai-hint="data security" 
                 />
               </div>
@@ -73,7 +73,7 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        <section id="purpose" className="py-16 lg:py-24 bg-primary/10">
+        <section id="purpose" className="py-16 lg:py-24 bg-primary/10 animate-in fade-in slide-in-from-bottom-5 duration-900 ease-out" style={{animationDelay: '200ms'}}>
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
@@ -84,7 +84,7 @@ const LandingPage: React.FC = () => {
                   Live Scribe frees you from the burden of manual note-taking, allowing you to fully engage in discussions, foster better collaboration, and drive productive outcomes. Spend less time documenting and more time innovating, connecting, and leading.
                 </p>
                 <Link href="/login" passHref>
-                  <Button size="lg" className="text-lg py-7 px-10">
+                  <Button size="lg" className="text-lg py-7 px-10 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105">
                     Try Live Scribe Now
                   </Button>
                 </Link>
@@ -93,7 +93,7 @@ const LandingPage: React.FC = () => {
                 <img 
                   src="https://picsum.photos/seed/teamfocus/600/450" 
                   alt="Team focusing in a meeting" 
-                  className="rounded-lg shadow-xl"
+                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out"
                   data-ai-hint="team meeting"
                 />
               </div>
@@ -107,3 +107,4 @@ const LandingPage: React.FC = () => {
 };
 
 export default LandingPage;
+

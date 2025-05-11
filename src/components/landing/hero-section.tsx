@@ -19,7 +19,7 @@ const HeroSection: React.FC = () => {
     }
   };
   return (
-    <section className="py-20 lg:py-32 bg-gradient-to-br from-background to-secondary/20">
+    <section className="py-20 lg:py-32 bg-gradient-to-br from-background to-secondary/20 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
       <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
         <div className="text-center lg:text-left">
           <h1 className="text-4xl lg:text-6xl font-extrabold mb-6 text-foreground leading-tight">
@@ -28,7 +28,7 @@ const HeroSection: React.FC = () => {
           <p className="text-lg lg:text-xl text-muted-foreground mb-10">
             Live Scribe provides real-time transcription, summarization, action item generation, and intelligent follow-up suggestions. Focus on the conversation, not on note-taking.
           </p>
-          <Button onClick={handleGetStarted} size="lg" className="text-lg py-7 px-10 shadow-lg hover:shadow-xl transition-shadow" disabled={loading}>
+          <Button onClick={handleGetStarted} size="lg" className="text-lg py-7 px-10 shadow-lg hover:shadow-xl transition-shadow duration-300" disabled={loading}>
              {loading ? 'Loading...' : (user ? 'Open Dashboard' : 'Get Started Free')}
           </Button>
         </div>
@@ -38,7 +38,7 @@ const HeroSection: React.FC = () => {
             alt="Collaborative meeting with AI insights"
             width={700}
             height={500}
-            className="rounded-xl shadow-2xl object-cover"
+            className="rounded-xl shadow-2xl object-cover hover:scale-105 transition-transform duration-300 ease-in-out"
             priority
             data-ai-hint="meeting collaboration"
           />
@@ -49,3 +49,4 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
+

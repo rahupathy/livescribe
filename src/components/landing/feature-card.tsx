@@ -14,7 +14,7 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, imageSrc, imageAlt, dataAiHint }) => {
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
+    <Card className="group shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-105 flex flex-col h-full overflow-hidden">
       <CardHeader className="items-center text-center">
         <div className="mb-4 p-3 bg-primary/10 rounded-full">
           {icon}
@@ -29,7 +29,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, ima
             alt={imageAlt} 
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            className="object-cover group-hover:scale-110 transition-transform duration-300 ease-in-out"
             data-ai-hint={dataAiHint}
           />
         </div>
@@ -39,3 +39,4 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, ima
 };
 
 export default FeatureCard;
+
