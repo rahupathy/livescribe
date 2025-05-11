@@ -42,8 +42,6 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
 
   const formattedMeetingContext = `Participants: ${initialContext.participants}. Agenda: ${initialContext.agenda}.`;
 
-  const DUMMY_AUDIO_DATA_URI = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhAAAAAA=='; // Used for text-only summarization
-
   useEffect(() => {
     const checkMicPermission = async () => {
         if (typeof navigator.permissions?.query === 'function') {
@@ -58,13 +56,9 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
                 setHasMicPermission(false); // Assume no permission if query fails
             }
         } else {
-            // Fallback for browsers that don't support navigator.permissions.query
-            // This won't update dynamically if permissions change outside the app.
-            // We can try a quick getUserMedia check, but it will prompt if not granted.
-            // For a non-prompting check, this path is limited.
              try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getTracks().forEach(track => track.stop()); // Clean up immediately
+                stream.getTracks().forEach(track => track.stop()); 
                 setHasMicPermission(true);
             } catch (error) {
                 setHasMicPermission(false);
@@ -77,7 +71,6 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
   const requestMicPermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Close the stream immediately after permission is granted, actual stream for recording will be opened when recording starts.
       stream.getTracks().forEach(track => track.stop());
       setHasMicPermission(true);
       toast({ title: "Microphone Access Granted", description: "You can now start listening." });
@@ -102,7 +95,7 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream; // Store the stream
+      mediaStreamRef.current = stream; 
       mediaRecorderRef.current = new MediaRecorder(stream);
       audioChunksRef.current = [];
 
@@ -137,7 +130,6 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
             toast({ title: "Error Processing Audio", description: `Could not process audio. ${error instanceof Error ? error.message : 'Unknown error.'}`, variant: "destructive" });
           } finally {
             setIsLoadingTranscriptFromAudio(false);
-             // Clean up tracks after stopping and processing
             if (mediaStreamRef.current) {
                 mediaStreamRef.current.getTracks().forEach(track => track.stop());
                 mediaStreamRef.current = null;
@@ -151,21 +143,20 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
       toast({ title: "Listening Started", description: "Microphone is now active." });
     } catch (error) {
       console.error('Error starting recording:', error);
-      setHasMicPermission(false); // Re-evaluate permission if start fails
+      setHasMicPermission(false); 
       toast({ title: "Recording Error", description: "Could not start audio recording. Please check microphone permissions.", variant: "destructive" });
     }
   };
 
   const stopListening = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
-      mediaRecorderRef.current.stop(); // This will trigger 'onstop'
+      mediaRecorderRef.current.stop(); 
     }
-    if (mediaStreamRef.current) { // Also stop tracks here in case onstop is not triggered for some reason
+    if (mediaStreamRef.current) { 
         mediaStreamRef.current.getTracks().forEach(track => track.stop());
         mediaStreamRef.current = null;
     }
     setIsListening(false);
-    // Stream tracks are also stopped in onstop
   };
 
   const handleToggleListening = () => {
@@ -184,11 +175,10 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
 
     setIsLoadingSummary(true);
     try {
-      // Use a distinct context for summarization that clearly indicates it's based on the *full text transcript*
-      const summaryContext = `Participants: ${initialContext.participants}. Agenda: ${initialContext.agenda}. Full Meeting Transcript: ${transcript}`;
       const result = await summarizeMeeting({
-        audioDataUri: DUMMY_AUDIO_DATA_URI, // Signal that this is text-based summarization
-        meetingContext: summaryContext, 
+        // No audioDataUri for text-only summarization
+        meetingContext: formattedMeetingContext, 
+        transcriptForSummary: transcript, // Pass transcript directly for summarization
         existingSummary: "", // Process full transcript for a new summary
         llmModel: initialContext.llmModel,
         llmApiKey: initialContext.llmApiKey,
@@ -196,9 +186,6 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
       if(result.summary) {
         setSummary(result.summary);
       } else {
-        // If summary is empty but newlyTranscribedText exists (which shouldn't for dummy audio)
-        // it implies the model might have tried to transcribe the dummy audio.
-        // This branch handles cases where the summary might be unexpectedly empty.
         setSummary("Could not generate a summary from the provided text.");
         toast({ title: "Summary Issue", description: "The model did not return a summary for the text.", variant: "default" });
       }
@@ -241,7 +228,7 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
     } finally {
       setIsLoadingSuggestions(false);
     }
-  }, [transcript, formattedMeetingContext, toast, initialContext.llmModel, initialContext.llmApiKey, summary]);
+  }, [transcript, formattedMeetingContext, toast, initialContext.llmModel, initialContext.llmApiKey]);
 
   const isLoadingAny = isLoadingSummary || isLoadingActionItems || isLoadingSuggestions || isLoadingTranscriptFromAudio;
 
@@ -303,11 +290,11 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
             <CardTitle className="flex items-center gap-2 text-xl"><MessageSquareQuote className="text-primary"/>Meeting Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            {(isLoadingSummary || (isLoadingTranscriptFromAudio && isListening)) && <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />}
-            {!(isLoadingSummary || (isLoadingTranscriptFromAudio && isListening)) && !summary && (
+            {(isLoadingSummary || (isLoadingTranscriptFromAudio && !summary)) && <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />}
+            {!(isLoadingSummary || (isLoadingTranscriptFromAudio && !summary)) && !summary && (
               <p className="text-muted-foreground italic">Summary will appear here once processed.</p>
             )}
-            {!(isLoadingSummary || (isLoadingTranscriptFromAudio && isListening)) && summary && (
+            {!(isLoadingSummary || (isLoadingTranscriptFromAudio && !summary)) && summary && (
               <ScrollArea className="h-[200px] w-full rounded-md border p-4 bg-secondary/30 shadow-inner">
                 <p className="whitespace-pre-wrap text-sm">{summary}</p>
               </ScrollArea>
@@ -390,5 +377,3 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
 };
 
 export default ScribeDashboard;
-
-    
