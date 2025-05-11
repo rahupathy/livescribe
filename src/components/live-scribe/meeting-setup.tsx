@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { MeetingContext } from "./types";
 import LiveScribeLogo from '@/components/icons/live-scribe-logo';
 import { AlertCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
 
 const formSchema = z.object({
   participants: z.string().min(1, { message: "Participant names are required." }),
@@ -57,14 +58,26 @@ const llmModelOptions = [
   { value: 'anthropic/claude-3-haiku-20240307', label: 'Anthropic: Claude 3 Haiku' },
 ];
 
+const ADMIN_EMAIL = "rahu431@gmail.com";
+// In a real scenario, this key might come from a secure configuration or environment variable specific to the admin's setup.
+// For this example, it's a placeholder to demonstrate pre-filling.
+const ADMIN_PREFILLED_API_KEY = "ADMIN_API_KEY_EXAMPLE_DO_NOT_COMMIT_REAL_KEYS"; 
+const ADMIN_DEFAULT_MODEL = llmModelOptions[0].value; // Default to Gemini 1.5 Flash for admin
+
 const MeetingSetup: React.FC<MeetingSetupProps> = ({ onContextSet }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
+  const defaultLlmModel = isAdmin ? ADMIN_DEFAULT_MODEL : llmModelOptions[0].value;
+  const defaultLlmApiKey = isAdmin ? ADMIN_PREFILLED_API_KEY : "";
+
   const form = useForm<MeetingSetupFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       participants: "",
       agenda: "",
-      llmModel: llmModelOptions[0].value, // Default to the first model
-      llmApiKey: "",
+      llmModel: defaultLlmModel,
+      llmApiKey: defaultLlmApiKey,
     },
   });
 
