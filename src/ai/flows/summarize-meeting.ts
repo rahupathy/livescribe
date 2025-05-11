@@ -59,6 +59,13 @@ const summarizeMeetingFlow = ai.defineFlow(
   },
   async (input) => {
     const { llmModel, llmApiKey, ...promptInput } = input;
+
+    if (!llmModel.startsWith('googleai/')) {
+      throw new Error(
+        `The selected model '${llmModel}' is not supported by the currently configured AI providers. Only Google AI models (e.g., 'googleai/gemini-pro') are available.`
+      );
+    }
+
     const {output} = await prompt(promptInput, {
       model: llmModel as ModelReference<any>, 
       auth: { apiKey: llmApiKey }

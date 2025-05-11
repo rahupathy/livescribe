@@ -56,6 +56,13 @@ const generateActionItemsFlow = ai.defineFlow(
   },
   async (input) => {
     const { llmModel, llmApiKey, ...promptInput } = input;
+
+    if (!llmModel.startsWith('googleai/')) {
+      throw new Error(
+        `The selected model '${llmModel}' is not supported by the currently configured AI providers. Only Google AI models (e.g., 'googleai/gemini-pro') are available.`
+      );
+    }
+
     const {output} = await generateActionItemsPrompt(promptInput, {
       model: llmModel as ModelReference<any>,
       auth: { apiKey: llmApiKey }
