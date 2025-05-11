@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, ListChecks, MessageSquareQuote, AlertTriangle, FileText, Brain } from 'lucide-react';
+import { Loader2, ListChecks, MessageSquareQuote, AlertTriangle, FileText, Brain, Info } from 'lucide-react';
 import type { MeetingContext, ScribeData } from "./types";
 import { summarizeMeeting } from '@/ai/flows/summarize-meeting';
 import { generateActionItems as genActionItemsFlow } from '@/ai/flows/generate-action-items';
@@ -45,18 +45,18 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
     // --- Summarization ---
     setIsLoadingSummary(true);
     try {
-      // The prompt for summarizeMeeting uses `meetingContext` and `existingSummary`.
-      // We'll put the current transcript into the meetingContext for the AI to process.
       const contextForSummary = `${formattedMeetingContext} Current discussion: ${transcript}`;
       const result = await summarizeMeeting({
-        audioDataUri: DUMMY_AUDIO_DATA_URI, // Dummy audio, as flow requires it
+        audioDataUri: DUMMY_AUDIO_DATA_URI,
         meetingContext: contextForSummary,
         existingSummary: summary,
+        llmModel: initialContext.llmModel,
+        llmApiKey: initialContext.llmApiKey,
       });
       setSummary(result.summary);
     } catch (error) {
       console.error("Error summarizing meeting:", error);
-      toast({ title: "Error Summarizing", description: "Could not generate summary. The AI flow might require actual audio input.", variant: "destructive" });
+      toast({ title: "Error Summarizing", description: `Could not generate summary. ${error instanceof Error ? error.message : 'Unknown error.'}`, variant: "destructive" });
     } finally {
       setIsLoadingSummary(false);
     }
@@ -67,11 +67,13 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
       const result = await genActionItemsFlow({
         meetingContext: formattedMeetingContext,
         transcript: transcript,
+        llmModel: initialContext.llmModel,
+        llmApiKey: initialContext.llmApiKey,
       });
       setActionItems(result.actionItems);
     } catch (error) {
       console.error("Error generating action items:", error);
-      toast({ title: "Error Generating Action Items", description: "Could not generate action items.", variant: "destructive" });
+      toast({ title: "Error Generating Action Items", description: `Could not generate action items. ${error instanceof Error ? error.message : 'Unknown error.'}`, variant: "destructive" });
     } finally {
       setIsLoadingActionItems(false);
     }
@@ -82,15 +84,17 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
       const result = await suggestFollowUpFlow({
         meetingContext: formattedMeetingContext,
         meetingNotes: transcript,
+        llmModel: initialContext.llmModel,
+        llmApiKey: initialContext.llmApiKey,
       });
       setSuggestions(result.followUpActions);
     } catch (error) {
       console.error("Error suggesting follow-up actions:", error);
-      toast({ title: "Error Generating Suggestions", description: "Could not generate suggestions.", variant: "destructive" });
+      toast({ title: "Error Generating Suggestions", description: `Could not generate suggestions. ${error instanceof Error ? error.message : 'Unknown error.'}`, variant: "destructive" });
     } finally {
       setIsLoadingSuggestions(false);
     }
-  }, [transcript, summary, formattedMeetingContext, toast]);
+  }, [transcript, summary, formattedMeetingContext, toast, initialContext.llmModel, initialContext.llmApiKey]);
 
   const isLoading = isLoadingSummary || isLoadingActionItems || isLoadingSuggestions;
 
@@ -98,8 +102,11 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <header className="text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-primary">Live Scribe Dashboard</h1>
-        <p className="text-muted-foreground">Meeting with: {initialContext.participants}</p>
-        <p className="text-muted-foreground">Agenda: {initialContext.agenda}</p>
+        <div className="text-sm text-muted-foreground mt-1">
+            <p>Meeting with: {initialContext.participants}</p>
+            <p>Agenda: {initialContext.agenda}</p>
+            <p>Using LLM: <Badge variant="secondary" className="ml-1">{initialContext.llmModel.replace('googleai/', '')}</Badge></p>
+        </div>
       </header>
 
       <Card className="shadow-lg">
@@ -188,11 +195,12 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
         </CardContent>
       </Card>
 
-      <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700">
-        <AlertTriangle className="h-5 w-5 text-primary" />
-        <AlertTitle className="font-semibold">Note on AI Summarization</AlertTitle>
+      <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
+        <Info className="h-5 w-5 text-primary" />
+        <AlertTitle className="font-semibold">Note on AI Features</AlertTitle>
         <AlertDescription>
-          The real-time summarization feature is optimized for audio input. While we attempt to process text-based transcripts, the quality and relevance of AI-generated summaries may be limited. For best results, future versions will integrate direct audio processing.
+          The real-time summarization feature is optimized for audio input. While text-based transcripts are processed, quality may vary.
+          API key errors or model access issues from the selected LLM provider might also affect results.
         </AlertDescription>
       </Alert>
 

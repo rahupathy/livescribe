@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { ModelReference } from 'genkit';
 
 const SummarizeMeetingInputSchema = z.object({
   audioDataUri: z
@@ -19,6 +20,8 @@ const SummarizeMeetingInputSchema = z.object({
     ),
   meetingContext: z.string().describe('The context of the meeting, including participants and agenda.'),
   existingSummary: z.string().optional().describe('The existing summary of the meeting, if any.'),
+  llmModel: z.string().describe('The LLM model to use for summarization.'),
+  llmApiKey: z.string().describe('The API key for the LLM model.'),
 });
 export type SummarizeMeetingInput = z.infer<typeof SummarizeMeetingInputSchema>;
 
@@ -33,7 +36,7 @@ export async function summarizeMeeting(input: SummarizeMeetingInput): Promise<Su
 
 const prompt = ai.definePrompt({
   name: 'summarizeMeetingPrompt',
-  input: {schema: SummarizeMeetingInputSchema},
+  input: {schema: SummarizeMeetingInputSchema.omit({ llmModel: true, llmApiKey: true })}, // Omit model/key from prompt's direct input schema
   output: {schema: SummarizeMeetingOutputSchema},
   prompt: `You are an AI assistant summarizing a meeting in real-time.
 
@@ -54,8 +57,14 @@ const summarizeMeetingFlow = ai.defineFlow(
     inputSchema: SummarizeMeetingInputSchema,
     outputSchema: SummarizeMeetingOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { llmModel, llmApiKey, ...promptInput } = input;
+    const {output} = await prompt(promptInput, {
+      model: llmModel as ModelReference<any>, // Cast because Genkit expects specific types
+      config: {
+        auth: { apiKey: llmApiKey }
+      }
+    });
     return output!;
   }
 );

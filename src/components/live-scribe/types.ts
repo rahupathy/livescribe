@@ -1,6 +1,8 @@
 export interface MeetingContext {
   participants: string;
   agenda: string;
+  llmModel: string;
+  llmApiKey: string;
 }
 
 export interface ScribeData {
@@ -9,3 +11,4 @@ export interface ScribeData {
   actionItems: string[];
   suggestions: string[];
 }
+

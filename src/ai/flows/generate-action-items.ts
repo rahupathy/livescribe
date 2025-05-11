@@ -9,12 +9,15 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { ModelReference } from 'genkit';
 
 const GenerateActionItemsInputSchema = z.object({
   meetingContext: z
     .string()
     .describe('The context of the meeting, including participants and agenda.'),
   transcript: z.string().describe('The transcript of the meeting.'),
+  llmModel: z.string().describe('The LLM model to use for generating action items.'),
+  llmApiKey: z.string().describe('The API key for the LLM model.'),
 });
 export type GenerateActionItemsInput = z.infer<typeof GenerateActionItemsInputSchema>;
 
@@ -31,7 +34,7 @@ export async function generateActionItems(input: GenerateActionItemsInput): Prom
 
 const generateActionItemsPrompt = ai.definePrompt({
   name: 'generateActionItemsPrompt',
-  input: {schema: GenerateActionItemsInputSchema},
+  input: {schema: GenerateActionItemsInputSchema.omit({ llmModel: true, llmApiKey: true })},
   output: {schema: GenerateActionItemsOutputSchema},
   prompt: `You are an AI assistant helping to generate action items from meeting transcripts.
 
@@ -51,8 +54,14 @@ const generateActionItemsFlow = ai.defineFlow(
     inputSchema: GenerateActionItemsInputSchema,
     outputSchema: GenerateActionItemsOutputSchema,
   },
-  async input => {
-    const {output} = await generateActionItemsPrompt(input);
+  async (input) => {
+    const { llmModel, llmApiKey, ...promptInput } = input;
+    const {output} = await generateActionItemsPrompt(promptInput, {
+      model: llmModel as ModelReference<any>,
+      config: {
+        auth: { apiKey: llmApiKey }
+      }
+    });
     return output!;
   }
 );

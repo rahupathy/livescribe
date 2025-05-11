@@ -1,4 +1,3 @@
-// src/ai/flows/suggest-follow-up-actions.ts
 'use server';
 
 /**
@@ -11,10 +10,13 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { ModelReference } from 'genkit';
 
 const SuggestFollowUpActionsInputSchema = z.object({
   meetingNotes: z.string().describe('Meeting notes from the discussion.'),
   meetingContext: z.string().optional().describe('Context about the meeting including participants and agenda.'),
+  llmModel: z.string().describe('The LLM model to use for suggesting follow-up actions.'),
+  llmApiKey: z.string().describe('The API key for the LLM model.'),
 });
 export type SuggestFollowUpActionsInput = z.infer<typeof SuggestFollowUpActionsInputSchema>;
 
@@ -31,7 +33,7 @@ export async function suggestFollowUpActions(input: SuggestFollowUpActionsInput)
 
 const suggestFollowUpActionsPrompt = ai.definePrompt({
   name: 'suggestFollowUpActionsPrompt',
-  input: {schema: SuggestFollowUpActionsInputSchema},
+  input: {schema: SuggestFollowUpActionsInputSchema.omit({ llmModel: true, llmApiKey: true })},
   output: {schema: SuggestFollowUpActionsOutputSchema},
   prompt: `Based on the following meeting notes, please suggest a list of follow-up actions.
 
@@ -52,8 +54,14 @@ const suggestFollowUpActionsFlow = ai.defineFlow(
     inputSchema: SuggestFollowUpActionsInputSchema,
     outputSchema: SuggestFollowUpActionsOutputSchema,
   },
-  async input => {
-    const {output} = await suggestFollowUpActionsPrompt(input);
+  async (input) => {
+    const { llmModel, llmApiKey, ...promptInput } = input;
+    const {output} = await suggestFollowUpActionsPrompt(promptInput, {
+      model: llmModel as ModelReference<any>,
+      config: {
+        auth: { apiKey: llmApiKey }
+      }
+    });
     return output!;
   }
 );
