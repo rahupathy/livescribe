@@ -3,7 +3,7 @@
 
 import type React from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { MeetingContext } from "./types";
 import LiveScribeLogo from '@/components/icons/live-scribe-logo';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
 const formSchema = z.object({
@@ -58,11 +58,16 @@ const llmModelOptions = [
   { value: 'anthropic/claude-3-haiku-20240307', label: 'Anthropic: Claude 3 Haiku' },
 ];
 
+const apiKeyGuides: Record<string, { label: string; url: string }> = {
+  googleai: { label: "Get your Google AI API Key from Google AI Studio", url: "https://aistudio.google.com/app/apikey" },
+  openai: { label: "Get your OpenAI API Key from OpenAI Platform", url: "https://platform.openai.com/api-keys" },
+  meta: { label: "Meta models (e.g., Llama) often require API keys from third-party providers like Groq or Replicate. Example: GroqCloud Keys", url: "https://console.groq.com/keys" },
+  anthropic: { label: "Get your Anthropic API Key from Anthropic Console", url: "https://console.anthropic.com/settings/keys" },
+};
+
 const ADMIN_EMAIL = "rahu431@gmail.com";
-// In a real scenario, this key might come from a secure configuration or environment variable specific to the admin's setup.
-// For this example, it's a placeholder to demonstrate pre-filling.
 const ADMIN_PREFILLED_API_KEY = "ADMIN_API_KEY_EXAMPLE_DO_NOT_COMMIT_REAL_KEYS"; 
-const ADMIN_DEFAULT_MODEL = llmModelOptions[0].value; // Default to Gemini 1.5 Flash for admin
+const ADMIN_DEFAULT_MODEL = llmModelOptions[0].value; 
 
 const MeetingSetup: React.FC<MeetingSetupProps> = ({ onContextSet }) => {
   const { user } = useAuth();
@@ -80,6 +85,20 @@ const MeetingSetup: React.FC<MeetingSetupProps> = ({ onContextSet }) => {
       llmApiKey: defaultLlmApiKey,
     },
   });
+
+  const selectedLlmModel = useWatch({
+    control: form.control,
+    name: "llmModel",
+    defaultValue: defaultLlmModel,
+  });
+
+  const getApiKeyGuide = (modelValue: string | undefined) => {
+    if (!modelValue) return null;
+    const provider = modelValue.split('/')[0]; // 'googleai', 'openai', etc.
+    return apiKeyGuides[provider] || null;
+  };
+  
+  const apiKeyGuide = getApiKeyGuide(selectedLlmModel);
 
   function onSubmit(values: MeetingSetupFormValues) {
     onContextSet(values);
@@ -165,6 +184,20 @@ const MeetingSetup: React.FC<MeetingSetupProps> = ({ onContextSet }) => {
                       <AlertCircle className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" />
                       <span>Your API key is used only for this session and is not stored on our servers. It remains in your browser's memory.</span>
                     </FormDescription>
+                    {apiKeyGuide && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Need an API key?{' '}
+                        <a 
+                          href={apiKeyGuide.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="underline hover:text-primary flex items-center"
+                        >
+                          {apiKeyGuide.label}
+                          <ExternalLink className="inline-block h-3 w-3 ml-1" />
+                        </a>
+                      </p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
