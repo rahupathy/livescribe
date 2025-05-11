@@ -1,5 +1,7 @@
 
+"use client";
 import type React from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,7 +10,11 @@ import LiveScribeLogo from '@/components/icons/live-scribe-logo';
 import Image from 'next/image';
 
 const ProjectSummaryPage: React.FC = () => {
-  const currentYear = new Date().getFullYear();
+  const [footerCopyrightText, setFooterCopyrightText] = useState<string>("Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.");
+
+  useEffect(() => {
+    setFooterCopyrightText(`${new Date().getFullYear()} Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.`);
+  }, []);
 
   const features = [
     "Firebase Authentication (Email/Password & Google Sign-In)",
@@ -153,7 +159,8 @@ const ProjectSummaryPage: React.FC = () => {
           <LiveScribeLogo className="h-6 w-6 text-primary" />
           <span className="font-semibold">Live Scribe</span>
         </div>
-        <p>&copy; {currentYear} Live Scribe. A Firebase Studio Project.</p>
+        <p>&copy; {footerCopyrightText}</p>
+        <p className="text-xs mt-1">This project is for educational purposes. Not for commercial use or reproduction.</p>
       </footer>
     </div>
   );

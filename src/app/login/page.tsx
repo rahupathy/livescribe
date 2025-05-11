@@ -2,7 +2,7 @@
 "use client";
 
 import type React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LoginForm from '@/components/auth/login-form';
 import { useAuth } from '@/contexts/auth-context';
@@ -11,6 +11,11 @@ import LiveScribeLogo from '@/components/icons/live-scribe-logo';
 const LoginPage: React.FC = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [footerCopyrightText, setFooterCopyrightText] = useState<string>("Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.");
+
+  useEffect(() => {
+    setFooterCopyrightText(`${new Date().getFullYear()} Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.`);
+  }, []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -33,8 +38,9 @@ const LoginPage: React.FC = () => {
        <footer className="py-8 text-center text-muted-foreground mt-8">
         <div className="flex items-center justify-center space-x-2">
           <LiveScribeLogo className="h-5 w-5" /> 
-          <span>Live Scribe &copy; {new Date().getFullYear()}</span>
+          <span>&copy; {footerCopyrightText}</span>
         </div>
+        <p className="text-xs mt-1">This project is for educational purposes. Not for commercial use or reproduction.</p>
       </footer>
     </main>
   );

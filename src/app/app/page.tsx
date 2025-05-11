@@ -20,6 +20,12 @@ export default function AppPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  const [footerCopyrightText, setFooterCopyrightText] = useState<string>("Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.");
+
+  useEffect(() => {
+    setFooterCopyrightText(`${new Date().getFullYear()} Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.`);
+  }, []);
+
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
@@ -41,12 +47,6 @@ export default function AppPage() {
     }
   };
   
-  const [currentYear, setCurrentYear] = useState<number | null>(null);
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-  }, []);
-
-
   if (loading || (!user && !loading)) {
     // AuthProvider shows its own loader, or user is being redirected by the effect above.
     return null; 
@@ -69,8 +69,9 @@ export default function AppPage() {
       <footer className="py-8 text-center text-muted-foreground">
         <div className="flex items-center justify-center space-x-2">
           <LiveScribeLogo className="h-5 w-5" /> 
-          {currentYear !== null ? <span>Live Scribe &copy; {currentYear}</span> : <span>Live Scribe</span>}
+          <span>&copy; {footerCopyrightText}</span>
         </div>
+        <p className="text-xs mt-1">This project is for educational purposes. Not for commercial use or reproduction.</p>
       </footer>
     </main>
   );
