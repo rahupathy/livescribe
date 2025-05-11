@@ -5,10 +5,16 @@ export interface MeetingContext {
   llmApiKey: string;
 }
 
+export interface SuggestionItem {
+  suggestion: string;
+  transcriptReference?: string;
+}
+
 export interface ScribeData {
   transcript: string;
   summary: string;
   actionItems: string[];
-  suggestions: string[];
+  suggestions: SuggestionItem[];
 }
 
+```
