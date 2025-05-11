@@ -58,9 +58,7 @@ const suggestFollowUpActionsFlow = ai.defineFlow(
     const { llmModel, llmApiKey, ...promptInput } = input;
     const {output} = await suggestFollowUpActionsPrompt(promptInput, {
       model: llmModel as ModelReference<any>,
-      config: {
-        auth: { apiKey: llmApiKey }
-      }
+      auth: { apiKey: llmApiKey }
     });
     return output!;
   }

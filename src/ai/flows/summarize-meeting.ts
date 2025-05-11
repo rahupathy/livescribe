@@ -36,7 +36,7 @@ export async function summarizeMeeting(input: SummarizeMeetingInput): Promise<Su
 
 const prompt = ai.definePrompt({
   name: 'summarizeMeetingPrompt',
-  input: {schema: SummarizeMeetingInputSchema.omit({ llmModel: true, llmApiKey: true })}, // Omit model/key from prompt's direct input schema
+  input: {schema: SummarizeMeetingInputSchema.omit({ llmModel: true, llmApiKey: true })}, 
   output: {schema: SummarizeMeetingOutputSchema},
   prompt: `You are an AI assistant summarizing a meeting in real-time.
 
@@ -60,10 +60,8 @@ const summarizeMeetingFlow = ai.defineFlow(
   async (input) => {
     const { llmModel, llmApiKey, ...promptInput } = input;
     const {output} = await prompt(promptInput, {
-      model: llmModel as ModelReference<any>, // Cast because Genkit expects specific types
-      config: {
-        auth: { apiKey: llmApiKey }
-      }
+      model: llmModel as ModelReference<any>, 
+      auth: { apiKey: llmApiKey }
     });
     return output!;
   }
