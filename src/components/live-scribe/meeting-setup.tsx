@@ -1,3 +1,4 @@
+
 "use client";
 
 import type React from 'react';
@@ -26,9 +27,9 @@ const formSchema = z.object({
   participants: z.string().min(1, { message: "Participant names are required." }),
   agenda: z.string().min(1, { message: "Meeting agenda is required." }),
   llmModel: z.string().min(1, { message: "Please select an LLM model." }),
-  llmApiKey: z.string().min(1, { message: "LLM API Key is required." }).refine(key => !key.startsWith("sk-") || key.length > 20, {
-    message: "Please enter a valid API key.",
-  }),
+  llmApiKey: z.string()
+    .min(1, { message: "LLM API Key is required." })
+    .min(10, { message: "API key seems too short. Please enter a valid key." }),
 });
 
 type MeetingSetupFormValues = z.infer<typeof formSchema>;
@@ -38,9 +39,22 @@ interface MeetingSetupProps {
 }
 
 const llmModelOptions = [
-  { value: 'googleai/gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash (Latest)' },
-  { value: 'googleai/gemini-pro', label: 'Gemini Pro' },
-  { value: 'googleai/gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro (Latest)' },
+  // Google Models
+  { value: 'googleai/gemini-1.5-flash-latest', label: 'Google: Gemini 1.5 Flash' },
+  { value: 'googleai/gemini-pro', label: 'Google: Gemini Pro' },
+  { value: 'googleai/gemini-1.5-pro-latest', label: 'Google: Gemini 1.5 Pro' },
+  // OpenAI Models
+  { value: 'openai/gpt-3.5-turbo', label: 'OpenAI: GPT-3.5 Turbo' },
+  { value: 'openai/gpt-4', label: 'OpenAI: GPT-4' },
+  { value: 'openai/gpt-4-turbo', label: 'OpenAI: GPT-4 Turbo' },
+  { value: 'openai/gpt-4o', label: 'OpenAI: GPT-4o' },
+  // Meta Llama Models (hypothetical prefix, assuming API key access via a provider)
+  { value: 'meta/llama-3-8b-instruct', label: 'Meta: Llama 3 8B Instruct' },
+  { value: 'meta/llama-3-70b-instruct', label: 'Meta: Llama 3 70B Instruct' },
+  // Anthropic Claude Models (hypothetical prefix)
+  { value: 'anthropic/claude-3-opus-20240229', label: 'Anthropic: Claude 3 Opus' },
+  { value: 'anthropic/claude-3-sonnet-20240229', label: 'Anthropic: Claude 3 Sonnet' },
+  { value: 'anthropic/claude-3-haiku-20240307', label: 'Anthropic: Claude 3 Haiku' },
 ];
 
 const MeetingSetup: React.FC<MeetingSetupProps> = ({ onContextSet }) => {
@@ -55,10 +69,6 @@ const MeetingSetup: React.FC<MeetingSetupProps> = ({ onContextSet }) => {
   });
 
   function onSubmit(values: MeetingSetupFormValues) {
-    // Optional: Store API key in sessionStorage if needed for persistence beyond component lifecycle
-    // if (typeof window !== "undefined") {
-    //   sessionStorage.setItem('llmApiKey', values.llmApiKey);
-    // }
     onContextSet(values);
   }
 
