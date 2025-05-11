@@ -12,7 +12,7 @@ const LandingFooter: React.FC = () => {
           <span className="font-semibold">Live Scribe</span>
         </div>
         <p>&copy; {currentYear} Live Scribe. All rights reserved.</p>
-        <p className="text-xs mt-1">Revolutionizing meetings, one insight at a time.</p>
+        <p className="text-xs mt-1">Revolutionizing meetings, one insight at a time. A project developed in Firebase Studio.</p>
       </div>
     </footer>
   );

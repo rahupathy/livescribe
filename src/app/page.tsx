@@ -6,9 +6,10 @@ import LandingHeader from '@/components/landing/landing-header';
 import HeroSection from '@/components/landing/hero-section';
 import FeatureCard from '@/components/landing/feature-card';
 import LandingFooter from '@/components/landing/landing-footer';
-import { ShieldCheck, Zap, ListChecks, Users } from 'lucide-react';
+import { ShieldCheck, Zap, ListChecks, Users, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const LandingPage: React.FC = () => {
   return (
@@ -62,11 +63,13 @@ const LandingPage: React.FC = () => {
                 We prioritize your privacy. Your LLM API keys are never stored on our servers; they remain securely in your browser's memory for the duration of your session. All meeting data processed using your keys is handled according to the terms of your chosen LLM provider. Live Scribe acts as a secure conduit, ensuring your sensitive information remains confidential and under your control.
               </p>
               <div className="flex justify-center">
-                <img 
-                  src="https://picsum.photos/seed/securitylock/600/350" 
-                  alt="Data security visual" 
-                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out"
-                  data-ai-hint="data security" 
+                <Image
+                  src="https://picsum.photos/seed/securitylock/600/350"
+                  alt="Data security visual"
+                  width={600}
+                  height={350}
+                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out object-cover"
+                  data-ai-hint="data security"
                 />
               </div>
             </div>
@@ -90,16 +93,48 @@ const LandingPage: React.FC = () => {
                 </Link>
               </div>
               <div>
-                <img 
-                  src="https://picsum.photos/seed/teamfocus/600/450" 
-                  alt="Team focusing in a meeting" 
-                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out"
+                <Image
+                  src="https://picsum.photos/seed/teamfocus/600/450"
+                  alt="Team focusing in a meeting"
+                  width={600}
+                  height={450}
+                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out object-cover"
                   data-ai-hint="team meeting"
                 />
               </div>
             </div>
           </div>
         </section>
+
+        <section id="project-journey" className="py-16 lg:py-24 bg-secondary/30 animate-in fade-in slide-in-from-bottom-5 duration-900 ease-out" style={{animationDelay: '400ms'}}>
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <Briefcase className="h-16 w-16 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-foreground">
+                Our Journey: Building Live Scribe
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Discover the story behind Live Scribe, from initial concept to a feature-rich AI application. Learn about the technologies used and the development process, all brought to life in Firebase Studio.
+              </p>
+              <Link href="/project-summary" passHref>
+                <Button size="lg" variant="outline" className="text-lg py-7 px-10 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                  Explore the Project Journey
+                </Button>
+              </Link>
+               <div className="flex justify-center mt-10">
+                <Image
+                  src="https://picsum.photos/seed/devprocess/600/350"
+                  alt="Development process illustration"
+                  width={600}
+                  height={350}
+                  className="rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out object-cover"
+                  data-ai-hint="development process"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
       <LandingFooter />
     </div>
@@ -107,4 +142,3 @@ const LandingPage: React.FC = () => {
 };
 
 export default LandingPage;
-
