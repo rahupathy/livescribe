@@ -10,12 +10,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, ListChecks, MessageSquareQuote, FileText, Brain, Info, Mic, StopCircle, AlertCircleIcon } from 'lucide-react';
+import { Loader2, ListChecks, MessageSquareQuote, FileText, Brain, Info, Mic, StopCircle, AlertCircleIcon, Download } from 'lucide-react';
 import type { MeetingContext, SuggestionItem } from "./types";
 import { summarizeMeeting } from '@/ai/flows/summarize-meeting';
 import { generateActionItems as genActionItemsFlow } from '@/ai/flows/generate-action-items';
 import { suggestFollowUpActions as suggestFollowUpFlow } from '@/ai/flows/suggest-follow-up-actions';
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from 'jspdf';
 
 interface ScribeDashboardProps {
   initialContext: MeetingContext;
@@ -176,10 +177,9 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
     setIsLoadingSummary(true);
     try {
       const result = await summarizeMeeting({
-        // No audioDataUri for text-only summarization
         meetingContext: formattedMeetingContext, 
-        transcriptForSummary: transcript, // Pass transcript directly for summarization
-        existingSummary: "", // Process full transcript for a new summary
+        transcriptForSummary: transcript, 
+        existingSummary: "", 
         llmModel: initialContext.llmModel,
         llmApiKey: initialContext.llmApiKey,
       });
@@ -230,7 +230,71 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
     }
   }, [transcript, formattedMeetingContext, toast, initialContext.llmModel, initialContext.llmApiKey]);
 
+  const handleDownloadPdf = () => {
+    if (!transcript.trim() && !summary.trim() && actionItems.length === 0 && suggestions.length === 0) {
+      toast({ title: "Nothing to Download", description: "Generate some content first.", variant: "destructive" });
+      return;
+    }
+
+    const doc = new jsPDF();
+    const margin = 15;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = margin;
+
+    const addTextWithWrap = (text: string, x: number, startY: number, maxWidth: number, fontSize: number, isBold = false) => {
+      doc.setFontSize(fontSize);
+      doc.setFont(undefined, isBold ? 'bold' : 'normal');
+      const lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach((line: string, index: number) => {
+        if (y + (index > 0 ? 5 : 0) > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.text(line, x, y);
+        y += (fontSize * 0.352778) * 1.5; // Approximate line height
+      });
+      y += 5; // Spacing after section/paragraph
+      return y;
+    };
+
+    addTextWithWrap("Live Scribe Report", margin, y, 180, 18, true);
+    y += 5;
+
+    if (transcript.trim()) {
+      addTextWithWrap("Transcript", margin, y, 180, 14, true);
+      addTextWithWrap(transcript, margin, y, 180, 10);
+    }
+
+    if (summary.trim()) {
+      addTextWithWrap("Summary", margin, y, 180, 14, true);
+      addTextWithWrap(summary, margin, y, 180, 10);
+    }
+
+    if (actionItems.length > 0) {
+      addTextWithWrap("Action Items", margin, y, 180, 14, true);
+      actionItems.forEach((item, index) => {
+        addTextWithWrap(`${index + 1}. ${item}`, margin, y, 180, 10);
+      });
+    }
+    
+    if (suggestions.length > 0) {
+      addTextWithWrap("Follow-up Suggestions", margin, y, 180, 14, true);
+      suggestions.forEach((item, index) => {
+        addTextWithWrap(`${index + 1}. ${item.suggestion}`, margin, y, 180, 10);
+        if (item.transcriptReference) {
+          addTextWithWrap(`   Reference: ${item.transcriptReference}`, margin + 5, y, 170, 8);
+        }
+      });
+    }
+
+    doc.save("live-scribe-report.pdf");
+    toast({ title: "PDF Downloaded", description: "Your report has been downloaded." });
+  };
+
+
   const isLoadingAny = isLoadingSummary || isLoadingActionItems || isLoadingSuggestions || isLoadingTranscriptFromAudio;
+  const isContentAvailable = transcript.trim() || summary.trim() || actionItems.length > 0 || suggestions.length > 0;
+
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
@@ -270,15 +334,21 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
             className="min-h-[200px] text-base rounded-md shadow-inner focus:ring-primary focus:border-primary"
             rows={10}
           />
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={handleToggleListening} disabled={isLoadingTranscriptFromAudio || hasMicPermission === null} variant="outline">
-              {isListening ? <StopCircle className="mr-2 h-4 w-4 text-red-500" /> : <Mic className="mr-2 h-4 w-4" />}
-              {isListening ? 'Stop Listening' : 'Start Listening'}
-              {isLoadingTranscriptFromAudio && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-            </Button>
-            <Button onClick={handleProcessTranscript} disabled={isLoadingAny || !transcript.trim()} className="flex-grow md:flex-grow-0">
-              {(isLoadingSummary || isLoadingActionItems || isLoadingSuggestions) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Process Transcript
+          <div className="flex flex-wrap gap-2 justify-between items-center">
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={handleToggleListening} disabled={isLoadingTranscriptFromAudio || hasMicPermission === null} variant="outline">
+                {isListening ? <StopCircle className="mr-2 h-4 w-4 text-red-500" /> : <Mic className="mr-2 h-4 w-4" />}
+                {isListening ? 'Stop Listening' : 'Start Listening'}
+                {isLoadingTranscriptFromAudio && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              </Button>
+              <Button onClick={handleProcessTranscript} disabled={isLoadingAny || !transcript.trim()} className="flex-grow md:flex-grow-0">
+                {(isLoadingSummary || isLoadingActionItems || isLoadingSuggestions) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Process Transcript
+              </Button>
+            </div>
+            <Button onClick={handleDownloadPdf} disabled={!isContentAvailable || isLoadingAny} variant="outline" className="flex-grow md:flex-grow-0">
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
             </Button>
           </div>
         </CardContent>
