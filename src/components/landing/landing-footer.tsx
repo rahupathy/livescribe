@@ -3,6 +3,7 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import LiveScribeLogo from '@/components/icons/live-scribe-logo';
+import { LifeBuoy } from 'lucide-react';
 
 const LandingFooter: React.FC = () => {
   const [footerCopyrightText, setFooterCopyrightText] = useState<string>("Signatech Services Pvt. Ltd. (signatech.com). All rights reserved.");
@@ -20,9 +21,20 @@ const LandingFooter: React.FC = () => {
         </div>
         <p>&copy; {footerCopyrightText}</p>
         <p className="text-xs mt-1">This project is for educational purposes. Not for commercial use or reproduction.</p>
+        <p className="text-sm mt-3">
+          <a 
+            href="mailto:support@signatech.com?subject=Live%20Scribe%20Feedback%20/%20Support"
+            className="inline-flex items-center hover:text-primary transition-colors"
+            aria-label="Contact Support and Feedback"
+          >
+            <LifeBuoy className="mr-1.5 h-4 w-4" />
+            Support & Feedback
+          </a>
+        </p>
       </div>
     </footer>
   );
 };
 
 export default LandingFooter;
+

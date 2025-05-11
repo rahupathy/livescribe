@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, ListChecks, MessageSquareQuote, FileText, Brain, Info, Mic, StopCircle, AlertCircleIcon, Download } from 'lucide-react';
+import { Loader2, ListChecks, MessageSquareQuote, FileText, Brain, Info, Mic, StopCircle, AlertCircleIcon, Download, LifeBuoy } from 'lucide-react';
 import type { MeetingContext, SuggestionItem } from "./types";
 import { summarizeMeeting } from '@/ai/flows/summarize-meeting';
 import { generateActionItems as genActionItemsFlow } from '@/ai/flows/generate-action-items';
@@ -442,8 +442,23 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
         </AlertDescription>
       </Alert>
 
+      <div className="mt-8 text-center text-sm text-muted-foreground">
+        <p>
+          Need help or have feedback? 
+          <a 
+            href="mailto:support@signatech.com?subject=Live%20Scribe%20Feedback%20/%20Support"
+            className="inline-flex items-center text-primary hover:underline ml-1"
+            aria-label="Contact Support and Feedback"
+          >
+            <LifeBuoy className="mr-1.5 h-4 w-4" />
+            Contact Support & Feedback
+          </a>
+        </p>
+      </div>
+
     </div>
   );
 };
 
 export default ScribeDashboard;
+
