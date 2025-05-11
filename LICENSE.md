@@ -1,6 +1,6 @@
 # Live Scribe - Educational Use License
 
-**Copyright (c) 2024 Signatech Services Pvt. Ltd. (signatech.com)**
+**Copyright (c) 2025 Signatech Services Pvt. Ltd. (signatech.com)**
 
 All rights reserved.
 

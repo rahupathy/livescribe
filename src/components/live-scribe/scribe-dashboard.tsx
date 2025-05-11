@@ -446,7 +446,7 @@ const ScribeDashboard: React.FC<ScribeDashboardProps> = ({ initialContext }) => 
         <p>
           Need help or have feedback? 
           <a 
-            href="mailto:support@signatech.com?subject=Live%20Scribe%20Feedback%20/%20Support"
+            href="mailto:rahupathy.m@signatech.com?subject=Live%20Scribe%20Feedback%20/%20Support"
             className="inline-flex items-center text-primary hover:underline ml-1"
             aria-label="Contact Support and Feedback"
           >

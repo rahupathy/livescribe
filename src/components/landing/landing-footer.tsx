@@ -23,7 +23,7 @@ const LandingFooter: React.FC = () => {
         <p className="text-xs mt-1">This project is for educational purposes. Not for commercial use or reproduction.</p>
         <p className="text-sm mt-3">
           <a 
-            href="mailto:support@signatech.com?subject=Live%20Scribe%20Feedback%20/%20Support"
+            href="mailto:rahupathy.m@signatech.com?subject=Live%20Scribe%20Feedback%20/%20Support"
             className="inline-flex items-center hover:text-primary transition-colors"
             aria-label="Contact Support and Feedback"
           >

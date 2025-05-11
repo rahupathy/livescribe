@@ -1,4 +1,4 @@
-# Live Scribe - A Firebase Studio Project
+suppor# Live Scribe - A Firebase Studio Project
 
 This is a Next.js application developed in Firebase Studio, demonstrating real-time meeting summarization, action item generation, and more using AI.
 
